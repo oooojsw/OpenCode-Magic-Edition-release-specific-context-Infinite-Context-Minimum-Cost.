@@ -1,92 +1,84 @@
-这是一份为您重新设计的 README.md。
+# OpenCode 魔改增强版 (OpenCode Magic Edition)
 
-它采用了最稳妥的命令行操作方式，去掉了繁琐的脚本说明，并严格遵循了您对代理说明的要求。
+这是一个基于 [anomalyco/opencode](https://github.com/anomalyco/opencode) 的深度魔改版本。
 
-OpenCode 魔改增强版 (OpenCode Magic Edition)
+### 🌟 魔改核心：`release_context` 工具
+本项目引入了**主动上下文释放机制**。当对话历史过长导致 Tokens 消耗过快时，AI 可以根据你的指令主动“扔掉”之前读取过的长文件内容，仅保留关键元信息（路径、大小、行数等）。
+- **Tokens 净减**：对于长文件内容，单次释放可节省 60% - 80% 的上下文占用。
+- **智能模糊匹配**：不仅可以通过 ID 释放，也可以直接说 “释放 package.json”，工具会自动匹配历史记录。
+- **一键清理**：输入“清理上下文”，AI 会自动释放最近 3 次工具调用结果。
 
-这是一个基于 anomalyco/opencode 的深度魔改版本。
+---
 
-🌟 魔改核心：release_context 工具
+## 🛠️ 首次运行配置
 
-本项目最大的改进是引入了主动上下文释放机制。AI 现在可以根据你的指令，主动“扔掉”之前读取过的长文件内容，仅保留关键元信息（路径、大小、行数等）。
+为确保环境绝对可用，请在项目根目录下打开终端（PowerShell 或 CMD）手动运行以下命令：
 
-极省 Tokens：处理大型代码库时，可节省 60% - 80% 的上下文占用。
-
-智能模糊匹配：你可以通过 toolCallId 释放，也可以直接告诉 AI “释放 package.json”，它会自动匹配之前的读取记录。
-
-一键瘦身：直接输入“清理一下上下文”，AI 会自动释放最近 3 次工具调用结果。
-
-🛠️ 首次运行配置
-
-为了确保环境绝对可用，请按照以下步骤在终端（PowerShell 或终端）手动运行命令：
-
-1. 安装 Bun 环境 (如已安装请跳过)
-code
-Powershell
-download
-content_copy
-expand_less
+### 1. 安装 Bun 环境 (如已安装请跳过)
+```powershell
 powershell -c "irm bun.sh/install.ps1 | iex"
+```
+*注意：安装完成后请关闭并重新打开终端窗口。*
 
-注意：安装完成后需重启终端窗口。
-
-2. 安装项目依赖
-
-进入项目根目录，依次运行以下两条命令：
-
-code
-Powershell
-download
-content_copy
-expand_less
+### 2. 安装项目依赖
+依次运行以下两条命令来下载所需的依赖包：
+```powershell
 bun install
 bun add entities
-3. 配置 API Key
+```
 
-找到项目根目录下的 .env.example，复制一份并重命名为 .env。
+### 3. 配置 API Key
+你有两种方式进行配置：
+- **方式 A (自动)**：直接运行项目目录下的 `一键启动.bat`，它会自动检测并为你生成一个 `.env` 配置文件。
+- **方式 B (手动)**：复制 `.env.example` 并重命名为 **`.env`**。
 
-用记事本打开 .env，在 ANTHROPIC_API_KEY= 后面填入你的 Key 并保存。
+> **提示**：`.env` 文件中的 Key 保持为空也可以启动，但在正式对话前请在 `ANTHROPIC_API_KEY=` 后面填入你的密钥。
 
-🚀 启动程序
+---
+
+## 🚀 启动程序
 
 在项目根目录下运行以下命令启动网页版：
 
-code
-Powershell
-download
-content_copy
-expand_less
+```powershell
 bun dev -- serve
+```
 
-启动成功后，在浏览器访问：http://localhost:4096
+启动成功后，在浏览器访问：`http://localhost:4096`
 
-💡 提示：如果程序卡在启动界面或无法连接 AI，请开启全局代理模式。
+> **📢 注意**：如果程序启动后无法连接 AI 或卡在初始化界面，请开启**全局代理**模式。
 
-🎮 如何使用 release_context
+---
 
-你可以直接在对话框中对 AI 下达指令：
+## 🎮 如何使用 release_context
 
-场景 A：“释放刚刚读取的文件内容，省点 tokens。”
+你可以在对话框中直接下达指令：
 
-场景 B：“把之前读过的 src/main.ts 的上下文释放了。”
+- “释放刚刚读取的文件内容。”
+- “把之前读过的 `src/main.ts` 的上下文清掉。”
+- “清理一下之前的历史记录，内容扔掉，保留文件名就好。”
 
-场景 C：“清理一下之前的历史记录，只保留文件名，内容扔掉。”
+AI 会自动调用工具并反馈节省了多少 Tokens。
 
-AI 会自动调用 release_context 工具，并将处理结果反馈给你。
+---
 
-⚠️ 注意事项
-
-请确保在 .env 文件中正确配置了密钥。
-
-如果在运行过程中遇到 entities/decode 相关报错，请重新运行 bun add entities。
-
-本项目为本地魔改版，不保证与官方后续版本的兼容性。
-
-## 📺 功能演示视频
+## 📺 功能演示
 
 <div align="center">
-  <video src="演示视频/1.mp4" width="100%" controls muted autoplay loop>
-    您的浏览器不支持 HTML5 视频标签。您可以直接进入 “演示视频” 文件夹手动播放 1.mp4。
+  <video >
+    
+
+https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb
+
+
   </video>
-  <p><em>演示：使用 release_context 工具快速释放大文件上下文</em></p>
+  <p><em>演示：使用 release_context 快速释放大文件上下文</em></p>
 </div>
+
+---
+
+## ⚠️ 常见问题
+- **依赖报错**：如果运行遇到 `entities/decode` 报错，请重新执行 `bun add entities`。
+
+---
+*Powered by OpenCode Mod Team*
