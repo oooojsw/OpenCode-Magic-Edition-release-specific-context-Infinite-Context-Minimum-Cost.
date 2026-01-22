@@ -1,5 +1,6 @@
 # OpenCode 魔改增强版 (OpenCode Magic Edition)
-
+🧹 Selective context deletion for OpenCode. 
+Delete specific files, messages, or tool results from conversation history.
 这是一个基于 [anomalyco/opencode](https://github.com/anomalyco/opencode) 的深度魔改版本。
 
 ### 🌟 魔改核心：`release_context` 工具
