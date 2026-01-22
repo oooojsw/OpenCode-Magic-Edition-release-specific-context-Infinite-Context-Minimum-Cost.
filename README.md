@@ -65,16 +65,11 @@ AI 会自动调用工具并反馈节省了多少 Tokens。
 ## 📺 功能演示
 
 <div align="center">
-  <video >
-    
-
-https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb
-
-
+  <video src="https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb" width="100%" controls muted autoplay loop>
+    您的浏览器不支持视频播放，请点击链接查看：<a href="https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb">查看视频</a>
   </video>
   <p><em>演示：使用 release_context 快速释放大文件上下文</em></p>
 </div>
-
 ---
 
 ## ⚠️ 常见问题
