@@ -1,0 +1,56 @@
+Release tool context to save tokens. Use this tool when you have finished analyzing files or tool outputs and no longer need their full content in the conversation history.
+
+IMPORTANT: Only completed tool calls can be released. If some tools are still running, this tool will automatically skip them and only release the completed ones.
+
+This tool replaces tool output content with a placeholder containing:
+- Tool name and title
+- File size
+- Number of tokens saved
+- Release timestamp
+
+Parameters:
+- toolCallIds: (Optional) Array of specific tool call IDs to release. If not provided, auto-detects recent tool calls.
+- count: (Optional) Number of recent tool calls to release. Default: 3. Only used if toolCallIds is not provided.
+- tools: (Optional) Filter by tool names (e.g. ['read', 'grep']). Only release calls from these tools. Default: all tools.
+
+Usage:
+**Automatic Mode (Recommended):**
+Simply call this tool without parameters to release the 3 most recent tool calls:
+- release_context({})
+
+Or specify how many to release:
+- release_context({ count: 5 })
+
+Or only release specific tool types:
+- release_context({ tools: ['read'], count: 10 })
+
+**Manual Mode:**
+If you need to release specific tool calls, provide the toolCallId from the tool output.
+
+When to use:
+- After you have finished analyzing files' contents
+- When you have extracted the necessary information from large outputs
+- Before continuing with other tasks to reduce context size
+- When you want to keep the conversation history clean
+
+Example:
+User: "Read these files and tell me the version numbers"
+AI: [Reads 3 files, returns versions]
+User: "Good, now release those files"
+AI: [Calls release_context({})]
+    ✅ Released 3 tool call(s)
+
+    **Summary:**
+    - package-lock.json
+      Lines: 15000
+      Saved: ~15000 tokens
+    - yarn.lock
+      Lines: 12000
+      Saved: ~12000 tokens
+    - requirements.txt
+      Lines: 500
+      Saved: ~500 tokens
+
+    **Total saved:** ~27500 tokens
+
+Note: You can only release completed tool calls. Each tool call can only be released once.
