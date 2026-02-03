@@ -1,10 +1,10 @@
 @echo off
 :: 设置UTF-8编码
 chcp 65001 >nul
-title OpenCode 网页版启动器 (极简可靠版)
+title OpenCode 网页版启动器 (完整版)
 
 echo ========================================================
-echo        OpenCode 魔改版 - 网页版一键启动
+echo        OpenCode - 网页版一键启动
 echo ========================================================
 echo.
 
@@ -40,17 +40,23 @@ if not exist ".env" (
 )
 
 :: ----------------------------------------------------------
-:: 启动服务器并立即打开浏览器
+:: 启动服务器（前端 + 后端）
 :: ----------------------------------------------------------
 echo.
-echo [+] 正在启动服务器...
-echo      如果浏览器显示“无法访问”，请等待几秒后手动刷新一下。
+echo [+] 正在启动 OpenCode 服务...
+echo.
+echo [1/3] 正在启动后端服务器 (http://localhost:4096)...
+
+:: 先启动后端服务器（当前窗口，可以看到错误）
+start /min "OpenCode Backend" bun dev -- serve
+
+:: 等待 5 秒让后端服务器完全启动
+echo [!] 等待后端服务器启动...
+timeout /t 5 /nobreak >nul
+
+echo [2/3] 正在启动前端 Web UI 服务器...
+echo      （会自动选择可用端口：3000、3001、3002...）
 echo.
 
-:: 立即在后台打开浏览器
-start "" "http://localhost:4096"
-
-:: 在当前窗口启动服务器
-bun dev -- serve
-
-pause
+:: 在当前窗口启动前端 Web UI
+bun run --cwd packages/app dev

@@ -168,6 +168,12 @@ OpenCode 包含三个内置代理:
 
 5. **默认分支**: 项目的默认分支是 `dev`
 
+6. **⚠️ 禁止主动编译测试**:
+   - **除非用户明确要求**,否则不要主动运行 `bun build`、`bun test`、`bun run dev` 等编译或测试命令
+   - 只修改代码,不执行编译和测试
+   - 如需编译,用户会主动提出要求
+   - **编译方法见下方"编译和测试"章节**
+
 ## 测试
 
 - 使用 Bun 测试框架
@@ -216,4 +222,54 @@ bun turbo typecheck
 格式化代码:
 ```bash
 ./script/format.ts
+```
+
+## 编译和测试
+
+**⚠️ 重要**: 以下命令仅在用户明确要求时才执行。
+
+### 类型检查
+```bash
+# 整个项目类型检查
+bun turbo typecheck
+
+# 单个包类型检查
+cd packages/opencode && bun run typecheck
+cd packages/desktop && bun run typecheck
+```
+
+### 运行测试
+```bash
+# 运行 opencode 核心包测试
+cd packages/opencode && bun test
+
+# 运行特定测试文件
+cd packages/opencode && bun test test/tool/release-context.test.ts
+```
+
+### 开发模式
+```bash
+# 核心包开发(默认在 packages/opencode 目录)
+bun dev
+
+# Web 应用开发(UI 调试)
+bun run --cwd packages/app dev
+# 访问 http://localhost:5173
+
+# 桌面应用开发
+bun run --cwd packages/desktop tauri dev
+```
+
+### 构建项目
+```bash
+# 构建整个项目
+turbo build
+
+# 构建独立可执行文件
+./packages/opencode/script/build.ts --single
+# 运行构建产物: ./packages/opencode/dist/opencode-<platform>/bin/opencode
+
+# 构建桌面应用
+cd packages/desktop
+bun run tauri build
 ```
