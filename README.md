@@ -10,7 +10,7 @@
 AI 读取大文件后可以主动释放其上下文，节省 60%-80% Tokens。
 
 ### 2. 任意目录启动
-从任意目录启动 OpenCode，TUI 左下角正确显示你的当前目录。
+从任意目录启动 魔改本地版OpenCode，TUI 左下角**正确显示你的当前目录**，而不是项目目录。
 
 ---
 
@@ -26,51 +26,46 @@ AI 读取大文件后可以主动释放其上下文，节省 60%-80% Tokens。
 
 ### 第一步：复制项目
 
-复制整个文件夹到本地，如：
+复制整个文件夹到本地任意位置，如：
 ```
-C:\Users\用户名\Desktop\opencode - copy
+C:\Users\你的用户名\Desktop\opencode - copy
 ```
 
 ### 第二步：安装依赖
 
 ```powershell
-cd "C:\Users\用户名\Desktop\opencode - copy"
+cd "C:\Users\你的用户名\Desktop\opencode - copy"
 bun install
 ```
 
 ---
 
-## ⚙️ 配置（重要！让任意目录都能启动）
+## ⚙️ 配置（让 opencode-mod 命令在任意目录可用）
 
-### 第三步：添加环境变量
+> **重要**：这步配置是为了让你在**任意目录**都能运行 `opencode-mod` 命令启动 OpenCode，而不需要每次都切换到项目目录。
 
-**1.** 打开系统环境变量设置：
-- 按 `Win + R`，输入 `sysdm.cpl`，回车
-- 点击「高级」→「环境变量」
+### 第三步：创建启动脚本
 
-**2.** 在「用户变量」中新建两个变量：
-
-| 变量名 | 值 |
-|--------|-----|
-| `OPENCODE_INITIAL_DIR` | `%USERPROFILE%` |
-| `OPENCODE_MOD_PATH` | `C:\Users\用户名\Desktop\opencode - copy` |
-
-> 把「用户名」改成你实际的用户名
-
-**3.** 修改 `OPENCODE_MOD_PATH` 变量，在其**最前面**添加：
-```
-C:\Users\用户名\Desktop\opencode - copy;
-```
-（注意分号分隔）
-
-### 第四步：创建启动脚本
-
-在 `C:\Users\用户名\AppData\Roaming\npm\` 目录下创建一个文件 `opencode-mod.ps1`：
-
+创建文件夹 `.local\bin`（如果不存在）：
 ```powershell
-# opencode-mod.ps1 内容：
-$ProjectDir = $env:OPENCODE_MOD_PATH
-$UserDir = $env:OPENCODE_INITIAL_DIR
+mkdir "C:\Users\你的用户名\Desktop\opencode - copy\.local\bin" -Force
+```
+
+创建 PowerShell 脚本 `opencode-mod.ps1`：
+```powershell
+# 保存到 C:\Users\你的用户名\Desktop\opencode - copy\.local\bin\opencode-mod.ps1
+
+param(
+    [Parameter(ValueFromRemainingArguments=$true)]
+    [string[]]$Args
+)
+
+$BunCmd = "C:\Users\你的用户名\AppData\Roaming\npm\bun.cmd"
+$ProjectDir = "C:\Users\你的用户名\Desktop\opencode - copy"
+$UserDir = (Get-Location).ToString().TrimEnd()
+
+# 使用 cmd /c 方式运行，环境变量在 cmd 进程中设置
+$ArgString = $Args -join " "
 
 # 创建临时脚本
 $TempScript = [System.IO.Path]::GetTempFileName() -replace '\.tmp$', '.bat'
@@ -78,45 +73,53 @@ $Content = @"
 @echo off
 set OPENCODE_INITIAL_DIR=$UserDir
 cd /d "$ProjectDir"
-bun run dev
+bun run dev $ArgString
 "@
 [System.IO.File]::WriteAllText($TempScript, $Content, [System.Text.Encoding]::UTF8)
+
+# 运行临时脚本
 cmd /c $TempScript
+
+# 删除临时脚本
 Remove-Item $TempScript -Force
 ```
 
-### 第五步：创建快捷命令
+### 第四步：添加 PATH 环境变量
 
-打开 PowerShell 配置文件：
-```powershell
-notepad $PROFILE
+**1.** 按 `Win + R`，输入 `sysdm.cpl`，回车
+
+**2.** 点击「高级」→「环境变量」
+
+**3.** 在「用户变量」的 `PATH` 变量中，在**最前面**添加：
+```
+C:\Users\你的用户名\Desktop\opencode - copy\.local\bin;
 ```
 
-添加一行：
-```powershell
-Remove-Item alias:opencode -ErrorAction SilentlyContinue
-function global:opencode { 
-    & "$env:USERPROFILE\AppData\Roaming\npm\opencode-mod.ps1" $args 
-}
-```
+> 注意：添加后用分号与后面的内容分隔
 
-保存后**重新打开 PowerShell**。
+### 第五步：重新打开终端（PowerShell）
+
+完成以上步骤后，**重新打开终端**使环境变量生效。
 
 ---
 
 ## 🎮 启动和使用
 
-### 启动
+### 启动 OpenCode
+
+配置完成后，在终端（PowerShell）中从**任意目录**运行：
 
 ```powershell
 # 进入你的项目目录
 cd C:\project\myapp
 
-# 启动 OpenCode
-opencode
+# 启动 OpenCode Mod
+opencode-mod
 ```
 
-TUI 左下角会显示 `~\myapp`（你的当前目录）
+> **注意**：`opencode-mod` 是命令名，PowerShell 会自动找到并执行 `opencode-mod.ps1`，不需要加扩展名。
+
+TUI 左下角会显示 `~\myapp`（你的当前目录）✅
 
 ### 释放上下文
 
@@ -139,23 +142,66 @@ AI: ✅ Successfully released 1 tool call(s)
 
 ---
 
+## 🔧 技术原理
+
+### 如何实现任意目录启动？
+
+1. **用户启动**：在任意目录运行 `opencode-mod`
+
+2. **保存当前目录**：包装脚本 `opencode-mod.ps1` 保存用户当前目录到环境变量 `OPENCODE_INITIAL_DIR`
+
+3. **修改源码**：`thread.ts` 读取 `OPENCODE_INITIAL_DIR` 作为工作目录，并传递给 TUI
+
+4. **TUI 显示**：TUI 通过 SDK 发送 `x-opencode-directory` header，服务器返回目录给前端显示
+
+### 核心代码修改
+
+**文件**：`packages/opencode/src/cli/cmd/tui/thread.ts`
+
+```typescript
+// 支持 OPENCODE_INITIAL_DIR 环境变量
+const initialDir = (process.env.OPENCODE_INITIAL_DIR ?? "").trim()
+const pwd = (process.env.PWD ?? "").trim()
+const baseCwd = initialDir || pwd || process.cwd()
+const cwd = args.project ? path.resolve(baseCwd, args.project) : (initialDir || process.cwd())
+
+// 关键：将 directory 传递给 tui()
+const tuiPromise = tui({
+  url,
+  directory: cwd,  // ← 这行让 TUI 显示正确目录
+  fetch: customFetch,
+  ...
+})
+```
+
+---
+
 ## 📁 核心文件
 
 ```
 opencode - copy/
-├── packages/opencode/src/cli/cmd/tui/thread.ts   ← 修改了这里
-└── .local/bin/opencode-mod.ps1                   ← 包装脚本
+├── packages/opencode/src/cli/cmd/tui/thread.ts   ← 修改了这里（支持 OPENCODE_INITIAL_DIR）
+└── .local/bin/opencode-mod.ps1                   ← 包装脚本（保存用户目录）
 ```
 
 ---
 
 ## ❓ 常见问题
 
-**Q: TUI 显示的目录不对**
-A: 检查环境变量 `OPENCODE_INITIAL_DIR` 是否设置正确
+**Q: TUI 显示的目录不对，显示的是项目目录**
+A: 检查 `.local\bin\opencode-mod.ps1` 是否正确创建，以及 PATH 是否包含该目录
 
-**Q: 报错 "Script not found"**
-A: 检查 `opencode-mod.ps1` 是否在 `AppData\Roaming\npm\` 目录
+**Q: 报错 "cannot find bun"**
+A: 确保已安装 Bun，并检查 `$BunCmd` 变量指向正确的 bun 路径
+
+**Q: 命令找不到**
+A: 
+1. 检查 PATH 是否包含 `.local\bin`
+2. 确保终端已重新打开
+3. 确保 `.local\bin` 目录下有 `opencode-mod.ps1` 文件
+
+**Q: 路径有空格导致失败**
+A: 确保用户名和路径没有空格，或使用正确的引号包裹
 
 ---
 
@@ -163,6 +209,7 @@ A: 检查 `opencode-mod.ps1` 是否在 `AppData\Roaming\npm\` 目录
 
 ### 2026-03-20
 - 修复工作目录问题，支持任意目录启动
+- TUI 左下角正确显示用户当前目录
 
 ### 2026-01-22
 - 添加 release_context 工具
