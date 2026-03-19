@@ -1,87 +1,172 @@
-# OpenCode 魔改增强版 (OpenCode Magic Edition)
-🧹 Selective context deletion for OpenCode. 
-Delete specific files, messages, or tool results from conversation history.
-这是一个基于 [anomalyco/opencode](https://github.com/anomalyco/opencode) 的深度魔改版本。
+# OpenCode Mod - 本地开发增强版
 
-### 🌟 魔改核心：`release_context` 工具
-一个基于OpenCode的，释放特定上下文，从上下文中删除特定的单个大文件，删除特定工具调用结果，删除对话段落的精准上下文管理工具。
-本项目引入了**主动上下文释放机制**。当对话历史过长导致 Tokens 消耗过快时，AI 可以根据你的指令主动“扔掉”之前读取过的长文件内容，仅保留关键元信息（路径、大小、行数等）。
-- **Tokens 净减**：对于长文件内容，单次释放可节省 60% - 80% 的上下文占用。
-- **智能模糊匹配**：不仅可以通过 ID 释放，也可以直接说 “释放 package.json”，工具会自动匹配历史记录。
-- **一键清理**：输入“清理上下文”，AI 会自动释放最近 3 次工具调用结果。
+基于 [anomalyco/opencode](https://github.com/anomalyco/opencode) 的魔改版本。
 
 ---
 
-## 🛠️ 首次运行配置
+## ⭐ 核心功能
 
-为确保环境绝对可用，请在项目根目录下打开终端（PowerShell 或 CMD）手动运行以下命令：
+### 1. 释放上下文 (release_context)
+AI 读取大文件后可以主动释放其上下文，节省 60%-80% Tokens。
 
-### 1. 安装 Bun 环境 (如已安装请跳过)
-```powershell
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
-*注意：安装完成后请关闭并重新打开终端窗口。*
-
-### 2. 安装项目依赖
-依次运行以下两条命令来下载所需的依赖包：
-```powershell
-bun install
-bun add entities
-```
-
-### 3. 配置 API Key
-你有两种方式进行配置：
-- **方式 A (自动)**：直接运行项目目录下的 `一键启动.bat`，它会自动检测并为你生成一个 `.env` 配置文件。
-- **方式 B (手动)**：复制 `.env.example` 并重命名为 **`.env`**。
-
-> **提示**：`.env` 文件中的 Key 保持为空也可以启动，但在正式对话前请在 `ANTHROPIC_API_KEY=` 后面填入你的密钥。
-
----
-
-## 🚀 启动程序
-
-在项目根目录下运行以下命令启动网页版：
-
-```powershell
-bun dev -- serve
-```
-
-启动成功后，在浏览器访问：`http://localhost:4096`
-
-> **📢 注意**：如果程序启动后无法连接 AI 或卡在初始化界面，请开启**全局代理**模式。
-
----
-
-## 🎮 如何使用 release_context
-
-你可以在对话框中直接下达指令：
-
-- “释放刚刚读取的文件内容。”
-- “把之前读过的 `src/main.ts` 的上下文清掉。”
-- “清理一下之前的历史记录，内容扔掉，保留文件名就好。”
-
-AI 会自动调用工具并反馈节省了多少 Tokens。
-
----
-
-### 🧠 记忆架构：千万级上下文推理能力
-本项目通过 `release_context` 工具可以实现对标 **Qwen-Agent** 的智能记忆管理机制，利用动态更新的外部自定义“信息记录本”替代原始长文本堆叠。
-在这种架构下，AI 仅需维持极小的核心上下文空间，即可在低 Token 消耗下平滑实现千万级规模的超长链路推理与全库级代码分析。
+### 2. 任意目录启动
+从任意目录启动 OpenCode，TUI 左下角正确显示你的当前目录。
 
 ---
 
 ## 📺 功能演示
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb" width="100%" controls muted autoplay loop>
-    您的浏览器不支持视频播放，请点击链接查看：<a href="https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb">查看视频</a>
-  </video>
-  <p><em>演示：使用 release_context 快速释放大文件上下文</em></p>
-</div>
----
-
-## ⚠️ 常见问题
-- **依赖报错**：如果运行遇到 `entities/decode` 报错，请重新执行 `bun add entities`。
+<video src="https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb" width="100%" controls muted autoplay loop>
+  演示视频：https://github.com/user-attachments/assets/928bc481-0f71-4781-a986-b189cd3ebcdb
+</video>
 
 ---
+
+## 🚀 快速开始
+
+### 第一步：复制项目
+
+复制整个文件夹到本地，如：
+```
+C:\Users\用户名\Desktop\opencode - copy
+```
+
+### 第二步：安装依赖
+
+```powershell
+cd "C:\Users\用户名\Desktop\opencode - copy"
+bun install
+```
+
+---
+
+## ⚙️ 配置（重要！让任意目录都能启动）
+
+### 第三步：添加环境变量
+
+**1.** 打开系统环境变量设置：
+- 按 `Win + R`，输入 `sysdm.cpl`，回车
+- 点击「高级」→「环境变量」
+
+**2.** 在「用户变量」中新建两个变量：
+
+| 变量名 | 值 |
+|--------|-----|
+| `OPENCODE_INITIAL_DIR` | `%USERPROFILE%` |
+| `OPENCODE_MOD_PATH` | `C:\Users\用户名\Desktop\opencode - copy` |
+
+> 把「用户名」改成你实际的用户名
+
+**3.** 修改 `OPENCODE_MOD_PATH` 变量，在其**最前面**添加：
+```
+C:\Users\用户名\Desktop\opencode - copy;
+```
+（注意分号分隔）
+
+### 第四步：创建启动脚本
+
+在 `C:\Users\用户名\AppData\Roaming\npm\` 目录下创建一个文件 `opencode-mod.ps1`：
+
+```powershell
+# opencode-mod.ps1 内容：
+$ProjectDir = $env:OPENCODE_MOD_PATH
+$UserDir = $env:OPENCODE_INITIAL_DIR
+
+# 创建临时脚本
+$TempScript = [System.IO.Path]::GetTempFileName() -replace '\.tmp$', '.bat'
+$Content = @"
+@echo off
+set OPENCODE_INITIAL_DIR=$UserDir
+cd /d "$ProjectDir"
+bun run dev
+"@
+[System.IO.File]::WriteAllText($TempScript, $Content, [System.Text.Encoding]::UTF8)
+cmd /c $TempScript
+Remove-Item $TempScript -Force
+```
+
+### 第五步：创建快捷命令
+
+打开 PowerShell 配置文件：
+```powershell
+notepad $PROFILE
+```
+
+添加一行：
+```powershell
+Remove-Item alias:opencode -ErrorAction SilentlyContinue
+function global:opencode { 
+    & "$env:USERPROFILE\AppData\Roaming\npm\opencode-mod.ps1" $args 
+}
+```
+
+保存后**重新打开 PowerShell**。
+
+---
+
+## 🎮 启动和使用
+
+### 启动
+
+```powershell
+# 进入你的项目目录
+cd C:\project\myapp
+
+# 启动 OpenCode
+opencode
+```
+
+TUI 左下角会显示 `~\myapp`（你的当前目录）
+
+### 释放上下文
+
+```
+你: 释放刚才读取的 package.json
+```
+
+```
+AI: ✅ Successfully released 1 tool call(s)
+    - package.json: ~1687 tokens saved
+```
+
+### 更多释放指令
+
+```
+你: 把之前读过的 src/main.ts 的上下文清掉
+你: 清理一下之前的历史记录
+你: 把这三个文件的上下文都释放
+```
+
+---
+
+## 📁 核心文件
+
+```
+opencode - copy/
+├── packages/opencode/src/cli/cmd/tui/thread.ts   ← 修改了这里
+└── .local/bin/opencode-mod.ps1                   ← 包装脚本
+```
+
+---
+
+## ❓ 常见问题
+
+**Q: TUI 显示的目录不对**
+A: 检查环境变量 `OPENCODE_INITIAL_DIR` 是否设置正确
+
+**Q: 报错 "Script not found"**
+A: 检查 `opencode-mod.ps1` 是否在 `AppData\Roaming\npm\` 目录
+
+---
+
+## 📝 更新日志
+
+### 2026-03-20
+- 修复工作目录问题，支持任意目录启动
+
+### 2026-01-22
+- 添加 release_context 工具
+
+---
+
 *Powered by OpenCode Mod Team*
